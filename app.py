@@ -8,6 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
+import streamlit as st
 
 # Configurar el controlador de Selenium
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
@@ -56,8 +57,9 @@ for page_num in range(1, 3):  # Cambia 11 a la página deseada + 1
     for producto in productos:
         nombre = producto.find_element(By.XPATH, './/h3/span').text
         try:
-            precio_antes = producto.find_element(By.XPATH, './/div[contains(@class, "previous-price")]/span').text
-            descuento = producto.find_element(By.XPATH, './/div[contains(@class, "discount-percentage")]/div').text
+            print("entrando al try")
+            precio_antes = producto.find_element(By.CLASS_NAME, 'exito-vtex-components-4-x-currencyContainer').text
+            descuento = producto.find_element(By.XPATH, '//*[@id="gallery-layout-container"]/div[2]/section/a/article/div[3]/div[2]/div/div/div/div[1]/div/div/div[4]/div[2]/div/div/div/div/div/div/div[1]/div/div/div').text
             medio_pago = producto.find_element(By.XPATH, './/div[contains(@class, "payment-methods")]/span').text
             mi_desc = producto.find_element(By.XPATH,'//*[@id="gallery-layout-container"]/div[2]/section/a/article/div[1]/div/div[1]/div/div[2]/img')
             mi_Desc = mi_desc.get_attribute("src")
@@ -80,7 +82,7 @@ for page_num in range(1, 3):  # Cambia 11 a la página deseada + 1
                                           "Mi_Descuento": [mi_Desc]})], ignore_index=True)
 
 # Imprimir el DataFrame con todos los nombres de productos
-print(df)
+st.table(df)
 
 # Cerrar el navegador después de la extracción de datos
 driver.quit()

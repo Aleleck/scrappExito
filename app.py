@@ -14,7 +14,7 @@ import streamlit as st
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 wait = WebDriverWait(driver, 30)
 # Definir la URL base
-base_url = "https://www.exito.com/mercado/vinos-y-licores/aguardiente/cervezas/ron/whisky?fuzzy=0&initialMap=c,c&initialQuery=mercado/vinos-y-licores&map=category-1,category-2,category-3,category-3,category-3,category-3&operator=and&order=OrderByBestDiscountDESC&page="
+base_url = "https://www.exito.com/mercado/despensa/bebidas-en-polvo/cafe-y-chocolates?fuzzy=0&initialMap=c,c&initialQuery=mercado/despensa&map=category-1,category-2,category-3,category-3&operator=and&order=OrderByBestDiscountDESC&page=2"
 # Crear un DataFrame para almacenar los resultados
 df = pd.DataFrame()
 # Realizar el inicio de sesión una vez, fuera del bucle
@@ -32,9 +32,9 @@ contrasena_input.send_keys("Ale13312")
 contrasena_input.send_keys(Keys.RETURN)
 time.sleep(5)
 wait.until(EC.presence_of_element_located((By.XPATH,'/html/body/div[2]/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[1]/div/div/div/div/div[3]/div/div/div/div/span'))).click()
-time.sleep(2)
+
 wait.until(EC.presence_of_element_located((By.XPATH,'//*[@id="exito-geolocation-3-x-modalContainer"]/div/div/div[2]/div[1]/div/button[2]/div[2]/div'))).click()
-time.sleep(2)
+
 wait.until(EC.presence_of_element_located((By.XPATH,'//*[@id="exito-geolocation-3-x-modalContainer"]/div/div/div[2]/div[3]/div[3]/button[2]'))).click()
 
 
@@ -46,7 +46,7 @@ def scroll_slowly():
 for page_num in range(1, 3):  # Cambia 11 a la página deseada + 1
     url = base_url + str(page_num)
     driver.get(url)
-    time.sleep(10)
+    time.sleep(1)
     scroll_slowly()  # Asumiendo que esta función sigue presente
     
     # Esperar a que aparezcan todos los productos (página cargada completamente)
@@ -56,33 +56,19 @@ for page_num in range(1, 3):  # Cambia 11 a la página deseada + 1
 
     for producto in productos:
         nombre = producto.find_element(By.XPATH, './/h3/span').text
-        try:
-            print("entrando al try")
-            precio_antes = producto.find_element(By.CLASS_NAME, 'exito-vtex-components-4-x-currencyContainer').text
-            descuento = producto.find_element(By.XPATH, '//*[@id="gallery-layout-container"]/div[2]/section/a/article/div[3]/div[2]/div/div/div/div[1]/div/div/div[4]/div[2]/div/div/div/div/div/div/div[1]/div/div/div').text
-            medio_pago = producto.find_element(By.XPATH, './/div[contains(@class, "payment-methods")]/span').text
-            mi_desc = producto.find_element(By.XPATH,'//*[@id="gallery-layout-container"]/div[2]/section/a/article/div[1]/div/div[1]/div/div[2]/img')
-            mi_Desc = mi_desc.get_attribute("src")
-        except:
-            precio_antes = 'N/A'
-            descuento = 'N/A'
-            medio_pago = 'N/A'
-            mi_Desc = 'N/A'
+ 
+        precios = producto.find_elements(By.XPATH, './/div[contains(@class, "price")]/div/span')
+        precios_lista = [precio.text for precio in precios]
         
-        precio_actual = producto.find_element(By.XPATH, './/div[contains(@class, "price")]/div/span').text
-        imagen = producto.find_element(By.XPATH, '//*[@id="gallery-layout-container"]/div[5]/section/a/article/div[3]/div[1]/div/img')
-        img = imagen.get_attribute("src")
+        imagenes = producto.find_elements(By.XPATH, './/div[contains(@class, "vtex-product-summary-2-x-imageContainer")]/div/img')
+        img_urls = [imagen.get_attribute("src") for imagen in imagenes]
         
-        df = pd.concat([df, pd.DataFrame({"nombre": [nombre], 
-                                          "Precio_Antes": [precio_antes],
-                                          "Medio_Pago": [medio_pago],
-                                          "Descuento": [descuento],
-                                          "Precio_Actual": [precio_actual],
-                                          "Imagen": [img],
-                                          "Mi_Descuento": [mi_Desc]})], ignore_index=True)
+        df = pd.concat([df, pd.DataFrame({"Imagen": [img_urls],
+                                          "nombre": [nombre], 
+                                          "Precios": [precios_lista] 
+                                          })], ignore_index=True)
 
 # Imprimir el DataFrame con todos los nombres de productos
 st.table(df)
 
-# Cerrar el navegador después de la extracción de datos
-driver.quit()
+# C

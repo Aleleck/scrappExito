@@ -10,11 +10,12 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 import streamlit as st
 
+d=0
 # Configurar el controlador de Selenium
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 wait = WebDriverWait(driver, 30)
 # Definir la URL base
-base_url = "https://www.exito.com/mercado/despensa/bebidas-en-polvo/cafe-y-chocolates?fuzzy=0&initialMap=c,c&initialQuery=mercado/despensa&map=category-1,category-2,category-3,category-3&operator=and&order=OrderByBestDiscountDESC&page=2"
+url = "https://tienda.exito.com/"
 # Crear un DataFrame para almacenar los resultados
 df = pd.DataFrame()
 # Realizar el inicio de sesión una vez, fuera del bucle
@@ -34,41 +35,32 @@ time.sleep(5)
 wait.until(EC.presence_of_element_located((By.XPATH,'/html/body/div[2]/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[1]/div/div/div/div/div[3]/div/div/div/div/span'))).click()
 
 wait.until(EC.presence_of_element_located((By.XPATH,'//*[@id="exito-geolocation-3-x-modalContainer"]/div/div/div[2]/div[1]/div/button[2]/div[2]/div'))).click()
-
+time.sleep(1)
 wait.until(EC.presence_of_element_located((By.XPATH,'//*[@id="exito-geolocation-3-x-modalContainer"]/div/div/div[2]/div[3]/div[3]/button[2]'))).click()
+time.sleep(5)
 
+busqueda= driver.find_element(By.XPATH, '//*[@id="downshift-0-input"]')
+busqueda.send_keys('COCA COLA')
+wait.until(EC.presence_of_element_located((By.XPATH,'/html/body/div[2]/div/div[1]/div/div[2]/div[1]/div/div[2]/div/div[1]/div/div/div/div/div[4]/div/div/div/div/div[1]/div/div/div/div/div[1]/div/label/div/span'))).click()
+time.sleep(4)
 
 def scroll_slowly():
     for _ in range(10):  # Ajusta el número de veces que deseas hacer scroll
         driver.execute_script("window.scrollBy(0, 400);")  # Ajusta el valor 100 para controlar la distancia del scroll
         time.sleep(0.5) 
 # Navegar a través de las páginas y recopilar datos
-for page_num in range(1, 3):  # Cambia 11 a la página deseada + 1
-    url = base_url + str(page_num)
-    driver.get(url)
-    time.sleep(1)
-    scroll_slowly()  # Asumiendo que esta función sigue presente
-    
-    # Esperar a que aparezcan todos los productos (página cargada completamente)
-    wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'vtex-search-result-3-x-galleryItem')))
+scroll_slowly()
+time.sleep(4)
+productos = driver.find_elements(By.CLASS_NAME, 'vtex-search-result-3-x-galleryItem')
 
-    productos = driver.find_elements(By.CLASS_NAME, 'vtex-search-result-3-x-galleryItem')
-
-    for producto in productos:
-        nombre = producto.find_element(By.XPATH, './/h3/span').text
- 
-        precios = producto.find_elements(By.XPATH, './/div[contains(@class, "price")]/div/span')
-        precios_lista = [precio.text for precio in precios]
-        
-        imagenes = producto.find_elements(By.XPATH, './/div[contains(@class, "vtex-product-summary-2-x-imageContainer")]/div/img')
-        img_urls = [imagen.get_attribute("src") for imagen in imagenes]
-        
-        df = pd.concat([df, pd.DataFrame({"Imagen": [img_urls],
-                                          "nombre": [nombre], 
-                                          "Precios": [precios_lista] 
-                                          })], ignore_index=True)
-
-# Imprimir el DataFrame con todos los nombres de productos
+for producto in productos:
+    nombre = producto.find_element(By.CLASS_NAME, 'vtex-store-components-3-x-productBrand').text
+    df = pd.concat([df, pd.DataFrame({"nombre": [nombre]})])
+    d = d +1
+print(d)
 st.table(df)
+#cambiihhjkfd
 
-# C
+
+
+    

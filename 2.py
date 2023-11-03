@@ -1,4 +1,5 @@
 #"cerveza, aguardiente, ron, whisky"=https://www.exito.com/mercado/vinos-y-licores/aguardiente/cervezas/ron/whisky?fuzzy=0&initialMap=c,c&initialQuery=mercado/vinos-y-licores&map=category-1,category-2,category-3,category-3,category-3,category-3&operator=and&order=OrderByBestDiscountDESC&page=
+<<<<<<< HEAD
 #""
 #
 wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'vtex-search-result-3-x-galleryItem')))
@@ -21,3 +22,7 @@ for producto in productos:
 
 # Imprimir el DataFrame con todos los nombres de productos
 st.table(df)
+=======
+#"sadfsadfasdfs"
+#
+>>>>>>> e9aed091c05f31e7fb70b1e07f069bc18979f576
